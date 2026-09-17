@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "ArtigoFalado",
+  "version": "0.1.0",
+  "description": "Transforma artigos da web em áudio.",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+# Evita testar uma versão diferente da que será registrada no commit.
+if ! git diff --quiet; then
+  echo 'Há mudanças fora do staging. Revise e adicione os arquivos da tarefa antes do commit.' >&2
+  exit 1
+fi
+exec sh scripts/check.sh
