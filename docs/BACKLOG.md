@@ -1,6 +1,6 @@
 # Tarefas de evolução
 
-As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1 implementada; T2–T5 continuam planejadas.
+As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1 e T2 implementadas; T3–T5 continuam planejadas.
 
 | Etapa | Issue |
 | --- | --- |
@@ -44,10 +44,12 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 **Escopo:** adicionar uma área de texto somente leitura, apresentar título e texto e ajustar o tamanho do popup com rolagem.
 
 **Critérios de aceite:**
-- [ ] O texto recebido aparece sem ser interpretado como HTML.
-- [ ] Textos longos podem ser percorridos sem quebrar o layout.
-- [ ] Há indicação de carregamento, conteúdo vazio e erro de comunicação.
-- [ ] O botão e os campos têm nomes acessíveis e são utilizáveis por teclado.
+- [x] O texto recebido aparece sem ser interpretado como HTML.
+- [x] Textos longos podem ser percorridos sem quebrar o layout.
+- [x] Há indicação de carregamento, conteúdo vazio e erro de comunicação.
+- [x] O botão e os campos têm nomes acessíveis e são utilizáveis por teclado.
+
+**Validação:** 50 testes aprovados em `sh scripts/check.sh`. No Chrome, texto longo exibido, rolagem até o fim por teclado, campo somente leitura e erro em página restrita confirmados. Casos de conteúdo vazio, HTML literal, falhas e limpeza de resultados anteriores cobertos por testes com mocks.
 
 ## T3 — Ler o artigo em voz alta e controlar a reprodução
 

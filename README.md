@@ -4,13 +4,14 @@ Extensão para Google Chrome com o objetivo de transformar artigos da web em lei
 
 [Repositório](https://github.com/Port0x/ArtigoFalado) · [Issues](https://github.com/Port0x/ArtigoFalado/issues) · [Execuções dos testes](https://github.com/Port0x/ArtigoFalado/actions)
 
-**Etapa atual — T1 implementada sobre a versão 0.1.0:** a extensão captura título e texto bruto da aba ativa. O popup exibe o título e avisa quando o texto está vazio. A exibição do texto (T2) e a reprodução de áudio ainda estão planejadas.
+**Etapa atual — T1 e T2 implementadas sobre a versão 0.1.0:** a extensão captura e exibe título e texto bruto da aba ativa. O texto aparece em um campo somente leitura com rolagem. A reprodução de áudio ainda está planejada.
 
 ## O que já funciona
 
 - Popup com o botão **Ler página**.
 - Comunicação entre o popup e o script executado na página.
 - Captura de `document.title` e apresentação do título.
+- Exibição do texto completo capturado em campo somente leitura, com seleção, cópia e rolagem por teclado.
 - Extração de `innerText` do primeiro `article`, depois `main` e, na ausência dos dois, `document.body`.
 - Remoção de espaços nas extremidades e aviso explícito para conteúdo vazio.
 - Mensagem de orientação quando não é possível acessar a página.
@@ -27,7 +28,7 @@ Apesar do nome do botão, esta etapa ainda não lê o artigo em voz alta.
 6. Abra ou atualize a página de um site HTTP/HTTPS.
 7. Abra o ArtigoFalado pelo menu de extensões e clique em **Ler página**.
 
-O título da página deve aparecer abaixo do botão. Não é necessário instalar dependências, configurar servidor ou executar um build para usar esta versão.
+O título da página deve aparecer abaixo do botão e o conteúdo capturado no campo **Texto do artigo**. Não é necessário instalar dependências, configurar servidor ou executar um build para usar esta versão.
 
 ## Como o código funciona
 
@@ -37,13 +38,14 @@ Clique em Ler página
   → envia a mensagem { acao: "pegar_artigo" }
   → content.js consulta document.title e extrai innerText de article, main ou body
   → responde com { titulo: "...", texto: "..." } ou { erro: "..." }
-  → popup.js mostra o título e avisa se o texto está vazio no elemento #status
+  → popup.js mostra o título em #status e o texto em #texto, com aviso para conteúdo vazio
 ```
 
 | Arquivo | Responsabilidade |
 | --- | --- |
 | `manifest.json` | Declara a extensão Manifest V3, as permissões, o popup e o script de conteúdo. |
-| `popup.html` | Define o botão e a área de resultado. |
+| `popup.html` | Define o botão, o status e o campo de texto somente leitura com rótulo acessível. |
+| `popup.css` | Controla o tamanho do popup, a rolagem e os indicadores de foco. |
 | `popup.js` | Consulta a aba, envia a mensagem e trata a resposta ou o erro. |
 | `content.js` | Recebe a solicitação na página e retorna título e texto bruto, ou um erro de extração. |
 | `AGENTS.md` | Orienta o Codex sobre desenvolvimento, validação e commits. |
@@ -99,7 +101,13 @@ Referências: [executor de testes do Node.js](https://nodejs.org/api/test.html) 
 
 Execute `sh scripts/check.sh` para verificar a sintaxe e toda a suíte `node:test`. Os testes cobrem prioridade dos elementos, texto vazio e longo, título atualizado, erros de extração, respostas inválidas, recuperação e comunicação entre os scripts com APIs simuladas. Eles não garantem o comportamento em todos os sites nem substituem testes no Chrome.
 
-No Chrome, recarregue a extensão e a página. Confira o título em um site comum, o aviso **Nenhum texto encontrado nesta página.** em conteúdo vazio e a orientação de acesso em uma página restrita. A conferência visual do texto completo será implementada na T2.
+No Chrome, recarregue a extensão e a página. Confira o título em um site comum, o aviso **Nenhum texto encontrado nesta página.** em conteúdo vazio e a orientação de acesso em uma página restrita. O texto completo capturado já pode ser conferido no campo **Texto do artigo** (T2).
+
+### Verificação da T2
+
+Use Tab para focar **Ler página**, Enter para capturar e Tab para acessar **Texto do artigo**. O campo permite selecionar, copiar e percorrer o texto, mas não editar. Textos longos têm rolagem interna. Ao capturar novamente, o conteúdo anterior é limpo e o botão fica desabilitado até a resposta. Fechar o popup descarta o resultado; reabra e capture novamente.
+
+Os testes incluem conteúdo literal semelhante a HTML, texto de 150 mil caracteres, limpeza após erros e bloqueio de capturas simultâneas. No Chrome foram conferidos artigo longo, rolagem até o fim, navegação por teclado, campo somente leitura e erro em página restrita. Conteúdo vazio e respostas inválidas também são cobertos com mocks.
 
 ## Problemas comuns
 
@@ -112,9 +120,9 @@ No Chrome, recarregue a extensão e a página. Confira o título em um site comu
 ## Próximas etapas
 
 1. Extração do texto bruto do artigo — implementada (T1).
-2. Exibir o texto no popup para conferência.
+2. Exibição do texto no popup para conferência — implementada (T2).
 3. Implementar leitura em voz alta com controles.
 4. Melhorar a leitura de textos longos e a escolha da voz.
 5. Avaliar a geração de um arquivo de áudio para download.
 
-O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T2–T5 continuam planejadas; a T1 está implementada nesta revisão.
+O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1 e T2 estão implementadas; T3–T5 continuam planejadas.

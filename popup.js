@@ -1,4 +1,11 @@
-document.getElementById("ler").addEventListener("click", async () => {
+const botao = document.getElementById("ler");
+const texto = document.getElementById("texto");
+
+botao.addEventListener("click", async () => {
+  if (botao.disabled) return;
+  botao.disabled = true;
+  texto.value = "";
+  texto.scrollTop = 0;
   const status = document.getElementById("status");
   status.textContent = "Buscando artigo…";
 
@@ -27,11 +34,14 @@ document.getElementById("ler").addEventListener("click", async () => {
     }
 
     const titulo = resposta.titulo || "A página não tem título.";
+    texto.value = resposta.texto;
     status.textContent = resposta.texto.trim()
       ? titulo
       : `${titulo} — Nenhum texto encontrado nesta página.`;
   } catch (erro) {
     console.error("Não foi possível acessar a página:", erro);
     status.textContent = "Não foi possível acessar esta página. Abra um site comum (http ou https), atualize a página e tente novamente.";
+  } finally {
+    botao.disabled = false;
   }
 });

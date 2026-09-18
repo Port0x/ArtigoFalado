@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>Artigo Falado</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
   <h1>Artigo Falado</h1>
   <button id="ler">Ler página</button>
   <p id="status" role="status"></p>
+  <label for="texto">Texto do artigo</label>
+  <textarea id="texto" readonly aria-describedby="orientacao" placeholder="O texto capturado aparecerá aqui."></textarea>
+  <p id="orientacao">Confira o texto antes de continuar. A leitura em voz alta ainda não está disponível.</p>
 
   <script src="popup.js"></script>
 </body>

@@ -17,3 +17,15 @@ test('manifesto referencia arquivos existentes e a versão do projeto', () => {
   assert.match(popup, /id="status"/);
   assert.match(popup, /src="popup\.js"/);
 });
+
+
+test('popup oferece campo somente leitura com rótulo e estilos locais', () => {
+  const popup = readFileSync(path.join(root, 'popup.html'), 'utf8');
+  assert.match(popup, /<html lang="pt-BR">/);
+  assert.match(popup, /<label for="texto">Texto do artigo<\/label>/);
+  assert.match(popup, /<textarea[^>]*id="texto"[^>]*readonly/);
+  assert.match(popup, /aria-describedby="orientacao"/);
+  assert.match(popup, /id="orientacao"/);
+  assert.match(popup, /href="popup.css"/);
+  assert.ok(existsSync(path.join(root, 'popup.css')));
+});

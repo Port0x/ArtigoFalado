@@ -9,20 +9,24 @@ const source = readFileSync(path.join(__dirname, '../popup.js'), 'utf8');
 function carregar({ query = async () => [{ id: 42 }], sendMessage = async () => ({ titulo: 'Artigo', texto: 'Conteúdo' }) } = {}) {
   let clicar;
   const status = { textContent: '' };
+  const texto = { value: '', scrollTop: 0 };
+  Object.defineProperty(texto, 'innerHTML', { set() { assert.fail('Texto não deve ser interpretado como HTML'); } });
+  const botao = { disabled: false, addEventListener(evento, fn) {
+    assert.equal(evento, 'click');
+    clicar = fn;
+  } };
   const erros = [];
   runInNewContext(source, {
     document: { getElementById(id) {
       if (id === 'status') return status;
-      if (id === 'ler') return { addEventListener(evento, fn) {
-        assert.equal(evento, 'click');
-        clicar = fn;
-      } };
+      if (id === 'ler') return botao;
+      if (id === 'texto') return texto;
       throw new Error(`Elemento inesperado: ${id}`);
     } },
     chrome: { tabs: { query, sendMessage } },
     console: { error(...args) { erros.push(args); } }
   });
-  return { clicar: () => clicar(), status, erros };
+  return { clicar: () => clicar(), status, erros, texto, botao };
 }
 
 test('consulta a aba ativa da janela atual e mostra seu título', async () => {
@@ -158,3 +162,51 @@ test('integra popup e content usando o contrato real de mensagens', async () => 
   await popup.clicar();
   assert.equal(popup.status.textContent, 'Integração');
 });
+
+for (const conteudo of ['Texto curto', '<script>alert(1)</script>\n<img src=x onerror=alert(1)>', 'ação '.repeat(30000)]) {
+  test(`exibe texto literal e completo (${conteudo.length} caracteres)`, async () => {
+    const popup = carregar({ sendMessage: async () => ({ titulo: 'Título', texto: conteudo }) });
+    await popup.clicar();
+    assert.equal(popup.texto.value, conteudo);
+    assert.equal(popup.botao.disabled, false);
+  });
+}
+
+test('limpa resultado anterior, reinicia rolagem e bloqueia cliques durante captura', async () => {
+  let resolver;
+  let consultas = 0;
+  const popup = carregar({ query: () => {
+    consultas++;
+    return new Promise((resolve) => { resolver = resolve; });
+  } });
+  popup.texto.value = 'Artigo anterior';
+  popup.texto.scrollTop = 180;
+  const captura = popup.clicar();
+  assert.equal(popup.texto.value, '');
+  assert.equal(popup.texto.scrollTop, 0);
+  assert.equal(popup.botao.disabled, true);
+  await popup.clicar();
+  assert.equal(consultas, 1);
+  resolver([{ id: 42 }]);
+  await captura;
+  assert.equal(popup.botao.disabled, false);
+  assert.equal(popup.texto.value, 'Conteúdo');
+});
+
+for (const [nome, opcoes] of [
+  ['sem aba', { query: async () => [] }],
+  ['erro de consulta', { query: async () => { throw new Error('Falha'); } }],
+  ['erro de comunicação', { sendMessage: async () => { throw new Error('Falha'); } }],
+  ['erro de extração', { sendMessage: async () => ({ erro: 'Falha' }) }],
+  ['resposta inválida', { sendMessage: async () => null }],
+  ['texto vazio', { sendMessage: async () => ({ titulo: 'Vazio', texto: '' }) }]
+]) {
+  test(`não mantém texto antigo e libera botão: ${nome}`, async () => {
+    const popup = carregar(opcoes);
+    popup.texto.value = 'Texto antigo';
+    await popup.clicar();
+    assert.equal(popup.texto.value, '');
+    assert.equal(popup.botao.disabled, false);
+    assert.notEqual(popup.status.textContent, 'Buscando artigo…');
+  });
+}
