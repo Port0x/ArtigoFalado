@@ -1,6 +1,14 @@
 # Tarefas de evolução
 
-Este documento registra o conteúdo das tarefas a publicar no GitHub. Os identificadores T1–T5 são locais, não números de issues. Todas as tarefas abaixo estão planejadas.
+As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. Todas as tarefas abaixo estão planejadas.
+
+| Etapa | Issue |
+| --- | --- |
+| T1 — Extração do texto | [#1](https://github.com/Port0x/ArtigoFalado/issues/1) |
+| T2 — Exibição no popup | [#2](https://github.com/Port0x/ArtigoFalado/issues/2) |
+| T3 — Leitura e controles | [#3](https://github.com/Port0x/ArtigoFalado/issues/3) |
+| T4 — Textos longos e vozes | [#4](https://github.com/Port0x/ArtigoFalado/issues/4) |
+| T5 — Exportação de áudio | [#5](https://github.com/Port0x/ArtigoFalado/issues/5) |
 
 ## Qualidade obrigatória em todas as etapas
 

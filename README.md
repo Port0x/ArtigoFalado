@@ -2,6 +2,8 @@
 
 Extensão para Google Chrome com o objetivo de transformar artigos da web em leitura em voz alta.
 
+[Repositório](https://github.com/Port0x/ArtigoFalado) · [Issues](https://github.com/Port0x/ArtigoFalado/issues) · [Execuções dos testes](https://github.com/Port0x/ArtigoFalado/actions)
+
 **Etapa atual — versão 0.1.0:** a extensão captura o título da aba ativa e o exibe no popup. A extração do artigo e a reprodução de áudio ainda estão planejadas.
 
 ## O que já funciona
@@ -114,5 +116,7 @@ O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.
 O projeto inclui instruções em `AGENTS.md` para o Codex criar um commit ao concluir cada tarefa de implementação solicitada, após revisar as alterações e executar as verificações disponíveis. Exemplos de mensagens: `feat: extrai texto do artigo`, `fix: trata falha de comunicação` e `docs: atualiza instalação`.
 
 Isso depende de Git funcional, identidade de autor configurada e permissões do ambiente. Não é um serviço que observa arquivos ou faz commits sem uma sessão do agente. Enviar commits ao GitHub também exige acesso autenticado e autorização para publicação na tarefa.
+
+Neste ambiente, o GitHub CLI foi instalado localmente em `.tools/github-cli`. Use `sh scripts/github.sh` para acessá-lo, por exemplo `sh scripts/github.sh issue list` ou `sh scripts/github.sh run list`. O script também aceita uma instalação global de `gh`. A autenticação é gerenciada pelo GitHub CLI, fora dos arquivos versionados. Em outra máquina, será necessário instalar e autenticar o CLI para publicar; isso não é necessário para rodar os testes.
 
 Referência: [instruções de projeto com AGENTS.md na documentação oficial do Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md).

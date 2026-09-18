@@ -6,6 +6,7 @@
 - ArtigoFalado é uma extensão Chrome Manifest V3, feita com JavaScript e HTML, sem build ou dependências nesta etapa.
 - A versão 0.1.0 captura apenas o título da página. Não apresentar recursos planejados como implementados.
 - Implementar somente o escopo solicitado. Consultar README.md e docs/BACKLOG.md para contexto.
+- Repositório remoto: `Port0x/ArtigoFalado` (privado). Usar `sh scripts/github.sh` para o GitHub CLI quando `gh` não estiver no PATH.
 
 ## Verificação
 
