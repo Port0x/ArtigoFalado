@@ -1,6 +1,6 @@
 # Tarefas de evolução
 
-As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. Todas as tarefas abaixo estão planejadas.
+As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1 implementada; T2–T5 continuam planejadas.
 
 | Etapa | Issue |
 | --- | --- |
@@ -24,12 +24,16 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 **Escopo:** em `content.js`, buscar `article`, depois `main` e, como alternativa, `document.body`; capturar `innerText`, remover espaços nas extremidades e responder com título e texto. Renomear a ação para `pegar_artigo` nos dois scripts. Não incluir áudio nesta tarefa.
 
 **Critérios de aceite:**
-- [ ] Uma página com `article` retorna o texto desse elemento.
-- [ ] Uma página sem `article`, mas com `main`, usa `main`.
-- [ ] A ausência dos dois elementos usa o corpo da página.
-- [ ] Conteúdo vazio recebe tratamento explícito.
-- [ ] Documentar que menus e anúncios ainda podem aparecer no resultado.
-- [ ] A captura atual do título continua funcionando.
+- [x] Uma página com `article` retorna o texto desse elemento.
+- [x] Uma página sem `article`, mas com `main`, usa `main`.
+- [x] A ausência dos dois elementos usa o corpo da página.
+- [x] Conteúdo vazio recebe tratamento explícito.
+- [x] Documentar que menus e anúncios ainda podem aparecer no resultado.
+- [x] A captura atual do título continua funcionando.
+
+**Validação:** sintaxe e 39 testes automatizados aprovados, incluindo integração dos scripts com mocks. No Chrome, captura do título em página real e orientação em página restrita verificadas. As alternativas de extração e os casos de borda foram verificados com DOM simulado; a compatibilidade com todos os sites não está garantida.
+
+**Próxima etapa:** T2 pode começar com o contrato `{ titulo, texto }` e o retorno `{ erro }` definidos. A conferência visual do texto extraído será parte dessa etapa.
 
 ## T2 — Exibir o texto capturado no popup
 
