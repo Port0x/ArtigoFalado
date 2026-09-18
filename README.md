@@ -74,15 +74,13 @@ Para preparar o ambiente de desenvolvimento no macOS ou Linux:
 sh scripts/bootstrap.sh
 ```
 
-Esse comando baixa Node.js 24.21.0 do site oficial, verifica o SHA-256 e o instala em `.tools/node`, dentro do projeto, sem alterar o Node de outros projetos. Executa a suíte e, quando o repositório Git já existe, ativa os hooks. A pasta `.tools` não é versionada. No macOS, o Git pode ser instalado pelas Ferramentas de Linha de Comando da Apple; a licença e eventuais autorizações do sistema precisam ser concluídas no instalador.
+Esse comando baixa Node.js 24.21.0 do site oficial, verifica o SHA-256 e o instala em `.tools/node`, dentro do projeto, sem alterar o Node de outros projetos. Executa a suíte e, quando o repositório Git já existe, ativa os hooks. A pasta `.tools` não é versionada.
 
 Para rodar todas as verificações a qualquer momento:
 
 ```sh
 sh scripts/check.sh
 ```
-
-Se Node.js 24 e npm já estiverem no PATH, também é possível usar `npm run check`, `npm test`, `npm run test:watch` e `npm run setup`. Não há dependências npm para instalar nesta etapa. O Node é necessário apenas para desenvolvimento e testes; a extensão continua sendo carregada diretamente no Chrome.
 
 ### Testes e automação
 
@@ -120,13 +118,3 @@ No Chrome, recarregue a extensão e a página. Confira o título em um site comu
 5. Avaliar a geração de um arquivo de áudio para download.
 
 O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T2–T5 continuam planejadas; a T1 está implementada nesta revisão.
-
-## Commits com o Codex
-
-O projeto inclui instruções em `AGENTS.md` para o Codex criar um commit ao concluir cada tarefa de implementação solicitada, após revisar as alterações e executar as verificações disponíveis. Exemplos de mensagens: `feat: extrai texto do artigo`, `fix: trata falha de comunicação` e `docs: atualiza instalação`.
-
-Isso depende de Git funcional, identidade de autor configurada e permissões do ambiente. Não é um serviço que observa arquivos ou faz commits sem uma sessão do agente. Enviar commits ao GitHub também exige acesso autenticado e autorização para publicação na tarefa.
-
-Neste ambiente, o GitHub CLI foi instalado localmente em `.tools/github-cli`. Use `sh scripts/github.sh` para acessá-lo, por exemplo `sh scripts/github.sh issue list` ou `sh scripts/github.sh run list`. O script também aceita uma instalação global de `gh`. A autenticação é gerenciada pelo GitHub CLI, fora dos arquivos versionados. Em outra máquina, será necessário instalar e autenticar o CLI para publicar; isso não é necessário para rodar os testes.
-
-Referência: [instruções de projeto com AGENTS.md na documentação oficial do Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
