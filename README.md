@@ -10,7 +10,7 @@ Projeto com testes automatizados em `node:test` e integração contínua no GitH
 
 [Repositório](https://github.com/Port0x/ArtigoFalado) · [Issues](https://github.com/Port0x/ArtigoFalado/issues) · [Execuções dos testes](https://github.com/Port0x/ArtigoFalado/actions)
 
-**Etapa atual — T1 a T4 implementadas sobre a versão 0.1.0:** a extensão captura e exibe o artigo, lê em voz alta por trechos e oferece controles, progresso, seleção de voz e velocidade. Exportação de áudio continua planejada.
+**Etapa atual — T1 a T4 implementadas sobre a versão 0.1.0:** a extensão captura e exibe o artigo, lê em voz alta por trechos e oferece controles, progresso, seleção de voz e velocidade. A exportação WAV tem implementação inicial com backend local e Google Cloud; a validação com voz real está pendente.
 
 ## O que já funciona
 
@@ -38,7 +38,7 @@ O botão **Ler página** captura o conteúdo. Após conferir o texto, clique em 
 6. Abra ou atualize a página de um site HTTP/HTTPS.
 7. Abra o ArtigoFalado pelo menu de extensões e clique em **Ler página**.
 
-O título da página deve aparecer abaixo do botão e o conteúdo capturado no campo **Texto do artigo**. Não é necessário instalar dependências, configurar servidor ou executar um build para usar esta versão.
+O título da página deve aparecer abaixo do botão e o conteúdo capturado no campo **Texto do artigo**. A captura e a leitura no navegador não exigem servidor ou build. A exportação de arquivo requer a configuração adicional descrita em [backend/README.md](backend/README.md).
 
 ## Como o código funciona
 
@@ -65,9 +65,9 @@ Clique em Ler página
 
 ## Permissões e dados
 
-O manifesto declara `activeTab` e um script de conteúdo com correspondência `<all_urls>`. Portanto, o script está configurado para ser carregado nas páginas compatíveis permitidas pelo navegador; a captura do título e do texto é solicitada pelo botão.
+O manifesto declara `activeTab`, `storage`, acesso HTTP a `127.0.0.1` para o backend local e um script de conteúdo com correspondência `<all_urls>`. Portanto, o script está configurado para ser carregado nas páginas compatíveis permitidas pelo navegador; a captura do título e do texto é solicitada pelo botão.
 
-A extensão não faz requisições próprias a servidores, não usa uma API de IA e não salva o artigo em armazenamento persistente. O texto da fala permanece em memória durante a reprodução. A síntese permite escolher uma voz ou usar a padrão do navegador para o idioma da página (ou `pt-BR` se ausente). As opções identificam vozes locais e remotas; vozes remotas podem depender de serviços do fornecedor. Não há garantia de funcionamento offline. O título e o texto não são registrados no console.
+A captura e a leitura no navegador não fazem requisições próprias ao backend. Na exportação, após autorização explícita, o texto é enviado ao backend local e ao Google Cloud Text-to-Speech. A extensão mantém o texto de exportação e o token local em `chrome.storage.session`; não grava esses dados em armazenamento persistente. A credencial Google permanece no backend. O texto da fala permanece em memória durante a reprodução. A síntese permite escolher uma voz ou usar a padrão do navegador para o idioma da página (ou `pt-BR` se ausente). As opções identificam vozes locais e remotas; vozes remotas podem depender de serviços do fornecedor. Não há garantia de funcionamento offline. O título e o texto não são registrados no console.
 
 A extração é simples: menus, anúncios e outros conteúdos podem aparecer no resultado, especialmente ao usar o corpo da página. Um `article` ou `main` existente, mas vazio, produz texto vazio; a busca por alternativas ocorre apenas quando o elemento não existe. Espaços internos e quebras de linha são preservados. Não há acesso especial a conteúdo em iframes ou shadow DOM.
 
@@ -125,7 +125,7 @@ Os testes incluem conteúdo literal semelhante a HTML, texto de 150 mil caracter
 
 A fala é controlada na página e continua ao fechar o popup. Ao reabrir na mesma aba, é possível pausar, continuar e parar sem capturar novamente. Atualizar, navegar para outro documento ou fechar a aba encerra a leitura; mudanças de endereço dentro do mesmo documento podem preservá-la. Não há retomada automática após recarregar a página. Recarregar a extensão durante uma fala exige também atualizar a página.
 
-Há uma leitura por aba, sem enfileirar cliques repetidos. Abas distintas têm estados independentes; esta etapa não coordena áudio entre abas. Os controles da Web Speech API podem também afetar síntese iniciada pelo próprio site no mesmo documento. Na T4, apenas um trecho é enviado à síntese por vez, e o próximo começa após o evento de término do anterior. Não há geração de arquivo para download.
+Há uma leitura por aba, sem enfileirar cliques repetidos. Abas distintas têm estados independentes; esta etapa não coordena áudio entre abas. Os controles da Web Speech API podem também afetar síntese iniciada pelo próprio site no mesmo documento. Na T4, apenas um trecho é enviado à síntese por vez, e o próximo começa após o evento de término do anterior. A exportação de arquivo é um fluxo separado, descrito abaixo.
 
 Validação da T3: sintaxe dos quatro scripts e 92 testes aprovados naquela etapa. Os novos testes cobrem comandos, estados, erros síncronos e assíncronos, falta de suporte, mensagens atrasadas, cancelamento ao navegar e recuperação entre popups. No Chrome foram observados os estados de início, pausa, continuação, parada e recuperação após fechar o popup. A qualidade audível e a reprodução integral de artigos longos não foram verificadas por escuta; confira com os alto-falantes do seu computador.
 
@@ -149,9 +149,13 @@ Os riscos conhecidos e o procedimento após atualizações estão em [docs/VALID
 
 **O código mudou, mas o comportamento continua igual:** recarregue a extensão e a página, depois feche e abra novamente o popup.
 
-## Base de exportação em desenvolvimento (T5.1)
+## Exportação WAV em validação (T5)
 
-O diretório [backend/](backend/README.md) inicia a exportação no mesmo projeto, com Node.js e provedor simulado apenas nos testes. Já há divisão por bytes, montagem WAV, progresso e cancelamento no módulo. Ainda não há serviço de voz real, servidor HTTP ou download no popup; a leitura da T4 continua funcionando como antes.
+Após capturar o texto, **Exportar áudio…** abre uma página própria da extensão. Configure o [backend local](backend/README.md), confira o texto e autorize o envio ao Google antes de gerar. A página mostra progresso e oferece cancelamento, download WAV e limpeza dos dados da sessão. A voz de exportação é pt-BR-Standard-A, em 1×; as opções da leitura não são reutilizadas.
+
+A implementação usa Node.js, sem pacotes adicionais, autenticação local e credencial Google somente no backend. O arquivo `.env.example` lista a configuração. A suíte tem 173 testes com APIs simuladas e integração HTTP local; não houve geração com credenciais reais nem escuta integral do áudio exportado. A T5 continua aberta até essa validação.
+
+Fechar o popup não interrompe o backend. Fechar a página de exportação também não cancela um pedido aceito; use **Cancelar geração**. Resultados ficam disponíveis por até 10 minutos após terminar; reiniciar o backend perde os trabalhos. Mais detalhes de custos, dados e limites estão no README do backend.
 
 ## Próximas etapas
 
@@ -159,6 +163,6 @@ O diretório [backend/](backend/README.md) inicia a exportação no mesmo projet
 2. Exibição do texto no popup para conferência — implementada (T2).
 3. Leitura em voz alta com controles — implementada (T3).
 4. Leitura por trechos, progresso, voz e velocidade — implementada (T4).
-5. Escolher o mecanismo de exportação após a [avaliação da T5](docs/EXPORTACAO_AUDIO.md); geração de arquivo ainda não implementada.
+5. Validar a exportação WAV com credenciais reais, Chrome e escuta integral (T5).
 
-O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1–T4 estão implementadas; T5 continua planejada.
+O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1–T4 estão implementadas; T5 está em implementação e validação.

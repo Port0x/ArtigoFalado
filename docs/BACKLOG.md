@@ -1,6 +1,6 @@
 # Tarefas de evolução
 
-As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1–T4 implementadas; T5 continua planejada.
+As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1–T4 implementadas; T5 em implementação e validação.
 
 | Etapa | Issue |
 | --- | --- |
@@ -94,13 +94,13 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 
 **Objetivo:** permitir baixar o artigo como arquivo de áudio.
 
-**Avaliação:** opções de serviço com backend e geração local registradas em [EXPORTACAO_AUDIO.md](EXPORTACAO_AUDIO.md). T5.1 implementa a base Node.js no mesmo repositório, com provedor simulado nos testes: divisão UTF-8, montagem WAV, progresso, cancelamento e limites. Veja [backend/README.md](../backend/README.md). Provedor real, API, integração com o popup e validação auditiva continuam pendentes; T5 não está concluída.
+**Avaliação:** opções de serviço com backend e geração local registradas em [EXPORTACAO_AUDIO.md](EXPORTACAO_AUDIO.md). T5.1 implementa a base Node.js no mesmo repositório, com provedor simulado nos testes: divisão UTF-8, montagem WAV, progresso, cancelamento e limites. Veja [backend/README.md](../backend/README.md). T5.2 adiciona adaptador Google, API local autenticada e página de exportação com progresso, cancelamento e download. São 173 testes aprovados com mocks e HTTP local; credenciais reais, permissões no Chrome e validação auditiva continuam pendentes. T5 não está concluída.
 
 **Escopo inicial:** avaliar um mecanismo de texto para fala que produza arquivo, definir formato, limites, custos e tratamento dos dados antes de implementar. Não assumir que a leitura do navegador fornece um MP3.
 
 **Critérios de aceite:**
-- [ ] Registrar a opção escolhida e suas limitações.
-- [ ] Se houver serviço externo, informar quais dados são enviados e não embutir chaves secretas na extensão.
-- [ ] Mostrar progresso e erros de geração.
+- [x] Registrar a opção escolhida e suas limitações: Google via backend local, WAV, voz fixa, token OAuth temporário.
+- [x] Se houver serviço externo, informar quais dados são enviados e não embutir chaves secretas na extensão.
+- [x] Mostrar progresso e erros de geração (interface coberta com mocks; conferência no Chrome pendente).
 - [ ] O arquivo baixado contém o texto solicitado e abre em um reprodutor comum.
-- [ ] Documentar instalação e configuração adicionais, quando necessárias.
+- [x] Documentar instalação e configuração adicionais, quando necessárias.

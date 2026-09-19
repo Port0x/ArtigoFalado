@@ -1,6 +1,8 @@
 # T5 — Avaliação da exportação de áudio
 
-Avaliação em 19/09/2026. Nenhum mecanismo foi escolhido ou implementado, nenhum serviço foi contratado e nenhum artigo foi enviado nesta avaliação. A leitura atual continua funcionando como na T4.
+Avaliação inicial em 19/09/2026. **Atualização T5.2:** o caminho com Google e backend local foi implementado para validação, com WAV e voz fixa. Veja [configuração e limitações atuais](../backend/README.md). A análise abaixo preserva o contexto anterior à implementação.
+
+Na avaliação inicial, nenhum mecanismo foi escolhido ou implementado, nenhum serviço foi contratado e nenhum artigo foi enviado nesta avaliação. A leitura atual continua funcionando como na T4.
 
 ## O que precisamos acrescentar
 

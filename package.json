@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "description": "Extensão para transformar artigos da web em leitura em voz alta",
-  "engines": { "node": ">=24 <25" },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "test": "node --test tests/*.test.cjs",
     "test:watch": "node --test --watch tests/*.test.cjs",
-    "check": "node --check content.js && node --check popup.js && node --check leitura.js && node --check controles.js && node --check backend/exportacao.cjs && npm test",
-    "setup": "node scripts/setup.cjs"
+    "check": "node --check content.js && node --check popup.js && node --check leitura.js && node --check controles.js && node --check backend/exportacao.cjs && node --check backend/google.cjs && node --check backend/servidor.cjs && node --check abrir-exportacao.js && node --check exportar.js && npm test",
+    "setup": "node scripts/setup.cjs",
+    "backend": "node --env-file=.env backend/servidor.cjs"
   }
 }

@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px; font: 16px/1.6 system-ui, sans-serif; color: #172033; background: #f5f7fb; }
+main { max-width: 800px; margin: auto; padding: 28px; background: white; border: 1px solid #c8d0dd; border-radius: 10px; }
+h1 { margin-top: 0; }
+label { display: block; font-weight: 600; }
+textarea { width: 100%; min-height: 220px; resize: vertical; }
+input[type=password] { width: 100%; }
+textarea, input, button { font: inherit; padding: 8px; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+.acoes { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
+progress { width: 100%; }
+details { margin-top: 16px; }
+summary { cursor: pointer; }
+.nota { font-size: 14px; color: #48566c; }
+:focus-visible { outline: 3px solid #185abc; outline-offset: 3px; }
+@media (max-width: 480px) { body { padding: 10px; } main { padding: 16px; } }

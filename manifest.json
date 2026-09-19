@@ -3,14 +3,25 @@
   "name": "ArtigoFalado",
   "version": "0.1.0",
   "description": "Transforma artigos da web em áudio.",
-  "permissions": ["activeTab"],
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
   "action": {
     "default_popup": "popup.html"
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js", "leitura.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js",
+        "leitura.js"
+      ]
     }
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*"
   ]
 }

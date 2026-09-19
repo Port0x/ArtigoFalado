@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exportar áudio — ArtigoFalado</title>
+  <link rel="stylesheet" href="exportar.css">
+</head>
+<body>
+  <main>
+    <h1>Exportar áudio</h1>
+    <p>Gere um arquivo WAV com a voz Google pt-BR-Standard-A, em velocidade 1×. As opções da leitura no navegador não se aplicam à exportação.</p>
+    <label for="artigo">Texto que será enviado</label>
+    <textarea id="artigo" readonly></textarea>
+    <details>
+      <summary>Configurar conexão local</summary>
+      <p>Inicie o backend no seu computador conforme <a href="https://github.com/Port0x/ArtigoFalado/blob/main/backend/README.md" target="_blank" rel="noreferrer">as instruções</a>. A conexão usa http://127.0.0.1:8787.</p>
+      <label for="token">Token local do ArtigoFalado (não é a credencial do Google)</label>
+      <input id="token" type="password" autocomplete="off" spellcheck="false">
+      <p>O token fica na sessão do navegador. A credencial do Google deve permanecer somente no backend.</p>
+    </details>
+    <p>Ao gerar, o texto acima será enviado ao backend local e ao Google Cloud Text-to-Speech. O serviço pode cobrar pela geração. Não envie conteúdo que você não queira compartilhar com o fornecedor.</p>
+    <label class="consentimento"><input id="consentimento" type="checkbox"> Autorizo enviar este texto ao Google para gerar o áudio.</label>
+    <div class="acoes">
+      <button id="gerar" disabled>Gerar WAV</button>
+      <button id="cancelar" disabled>Cancelar geração</button>
+      <button id="baixar" disabled>Baixar WAV</button>
+      <button id="limpar">Limpar dados</button>
+    </div>
+    <label id="rotulo-progresso" for="progresso-exportacao">Nenhum trecho gerado.</label>
+    <progress id="progresso-exportacao" value="0" max="1"></progress>
+    <p id="status-exportacao" role="status">Carregando texto…</p>
+    <p class="nota">Você pode fechar o popup. Esta página acompanha o trabalho; recarregá-la recupera o progresso enquanto a sessão e o backend estiverem ativos. Fechar esta página não cancela a geração. O backend retém o resultado por até 10 minutos após o término.</p>
+  </main>
+  <script src="exportar.js"></script>
+</body>
+</html>
