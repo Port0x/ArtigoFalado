@@ -1,6 +1,12 @@
 # ArtigoFalado
 
-Extensão para Google Chrome com o objetivo de transformar artigos da web em leitura em voz alta.
+Leia artigos da web em voz alta, direto no Chrome. Capture o texto, confira o conteúdo e controle a leitura com pausa, continuação, voz e velocidade.
+
+**JavaScript · HTML · CSS · Chrome Manifest V3 · Web Speech API**
+
+Projeto com testes automatizados em `node:test` e integração contínua no GitHub Actions. A extensão funciona sem build ou dependências de instalação.
+
+[Instalação](#instalação-local) · [Como funciona](#como-o-código-funciona) · [Validação e limitações](docs/VALIDACAO.md) · [Próximas etapas](docs/BACKLOG.md)
 
 [Repositório](https://github.com/Port0x/ArtigoFalado) · [Issues](https://github.com/Port0x/ArtigoFalado/issues) · [Execuções dos testes](https://github.com/Port0x/ArtigoFalado/actions)
 
