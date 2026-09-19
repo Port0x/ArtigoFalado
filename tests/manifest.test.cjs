@@ -41,3 +41,13 @@ test('scripts de voz estão conectados ao manifesto e aos controles do popup', (
   }
   assert.match(popup, /id="estado-leitura" role="status"/);
 });
+
+test('seletores de voz e velocidade e progresso têm rótulos acessíveis', () => {
+  const popup = readFileSync(path.join(root, 'popup.html'), 'utf8');
+  for (const id of ['voz', 'velocidade']) {
+    assert.match(popup, new RegExp(`<label for="${id}">`));
+    assert.match(popup, new RegExp(`<select id="${id}"`));
+  }
+  assert.match(popup, /for="progresso"/);
+  assert.match(popup, /<progress id="progresso"/);
+});

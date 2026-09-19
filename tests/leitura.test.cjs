@@ -5,11 +5,12 @@ const { runInNewContext } = require('node:vm');
 const path = require('node:path');
 const source = readFileSync(path.join(__dirname, '../leitura.js'), 'utf8');
 
-function carregar({ suporte = true, lang = 'pt-BR' } = {}) {
+function carregar({ suporte = true, lang = 'pt-BR', vozes = [] } = {}) {
   let listener, sair;
   const chamadas = [];
   const falas = [];
   const synth = {
+    getVoices() { return vozes; },
     speak(fala) { chamadas.push('speak'); falas.push(fala); },
     pause() { chamadas.push('pause'); },
     resume() { chamadas.push('resume'); },
@@ -27,8 +28,8 @@ function carregar({ suporte = true, lang = 'pt-BR' } = {}) {
     return respostas;
   };
   return { synth, chamadas, falas, sair: () => sair(), enviar,
-    comando(comando, texto) {
-      const respostas = enviar({ acao: 'controlar_leitura', comando, texto });
+    comando(comando, texto, opcoes = {}) {
+      const respostas = enviar({ acao: 'controlar_leitura', comando, texto, ...opcoes });
       assert.equal(respostas.length, 1);
       return respostas[0];
     }
@@ -147,4 +148,131 @@ test('instâncias de páginas têm estados independentes', () => {
   a.comando('ouvir', 'Texto');
   assert.equal(b.comando('estado').estado, 'parado');
   assert.deepEqual(b.chamadas, []);
+});
+
+for (const [nome, texto] of [
+  ['frases e parágrafos', 'Primeira frase. Segunda frase! Terceira?\n'.repeat(80)],
+  ['texto sem pontuação', 'palavra '.repeat(1000)],
+  ['palavra muito longa', 'a'.repeat(1001)],
+  ['emoji no limite', 'a'.repeat(239) + '😀'.repeat(130)],
+  ['espaços e quebras', ' \nOlá\t mundo.\n\n'.repeat(120)],
+  ['texto de 150 mil caracteres', 'ação '.repeat(30000)]
+]) {
+  test(`divide sem perda ou repetição e conclui em ordem: ${nome}`, () => {
+    const p = carregar();
+    const inicio = p.comando('ouvir', texto);
+    assert.ok(inicio.progresso.total > 1);
+    let n = 0;
+    while (p.comando('estado').estado !== 'concluido') {
+      assert.ok(n < 10000, 'Fila deve terminar');
+      assert.equal(p.falas.length, n + 1, 'Apenas um trecho é enviado por vez');
+      const fala = p.falas[n++];
+      assert.ok(fala.text.length <= 240);
+      assert.equal(fala.text.isWellFormed(), true);
+      fala.onstart();
+      fala.onend();
+      fala.onend(); // Evento duplicado não pode pular um trecho.
+    }
+    assert.equal(p.falas.map((f) => f.text).join(''), texto);
+    const fim = p.comando('estado').progresso;
+    assert.equal(fim.concluidos, fim.total);
+  });
+}
+
+test('prefere terminar trecho em uma frase quando possível', () => {
+  const p = carregar();
+  p.comando('ouvir', 'Frase curta. ' + 'palavra '.repeat(80));
+  assert.equal(p.falas[0].text, 'Frase curta. ');
+});
+
+test('parar cancela fila inteira e início seguinte zera progresso', () => {
+  const p = carregar();
+  p.comando('ouvir', 'Frase. '.repeat(300));
+  const antiga = p.falas[0];
+  p.comando('parar');
+  antiga.onend();
+  assert.equal(p.falas.length, 1);
+  assert.deepEqual(p.comando('estado').progresso, { concluidos: 0, total: 0 });
+  p.comando('ouvir', 'Novo');
+  assert.deepEqual(p.comando('estado').progresso, { concluidos: 0, total: 1 });
+});
+
+test('pausa na fronteira de trechos preserva fila e retoma do próximo', () => {
+  const p = carregar();
+  p.comando('ouvir', 'Uma frase. '.repeat(100));
+  p.comando('pausar');
+  p.falas[0].onend();
+  assert.equal(p.falas.length, 1);
+  assert.equal(p.comando('estado').estado, 'pausado');
+  assert.equal(p.comando('estado').progresso.concluidos, 1);
+  p.comando('ouvir', 'Não deve substituir');
+  assert.equal(p.falas.length, 1);
+  p.comando('continuar');
+  assert.equal(p.falas.length, 2);
+  assert.equal(p.comando('estado').progresso.concluidos, 1);
+});
+
+test('erro em trecho posterior interrompe a fila e preserva progresso para diagnóstico', () => {
+  const p = carregar();
+  p.comando('ouvir', 'Uma frase. '.repeat(100));
+  p.falas[0].onend();
+  p.falas[1].onerror({ error: 'network' });
+  p.falas[1].onend();
+  assert.equal(p.comando('estado').estado, 'erro');
+  assert.equal(p.comando('estado').progresso.concluidos, 1);
+  assert.equal(p.falas.length, 2);
+});
+
+const vozLocal = { voiceURI: 'voz-pt', name: 'Português', lang: 'pt-BR', localService: true };
+
+test('vozes que chegam depois aparecem na consulta de estado', () => {
+  const vozes = [];
+  const p = carregar({ vozes });
+  assert.deepEqual(p.comando('estado').vozes, []);
+  vozes.push(vozLocal);
+  assert.deepEqual(p.comando('estado').vozes, [{ id: 'voz-pt', nome: 'Português', idioma: 'pt-BR', local: true }]);
+});
+
+test('aplica voz e velocidade a todos os trechos, mantendo opções entre consultas', () => {
+  const p = carregar({ vozes: [vozLocal] });
+  p.comando('configurar', undefined, { voz: 'voz-pt', velocidade: 1.5 });
+  p.comando('ouvir', 'Frase. '.repeat(100));
+  assert.equal(p.falas[0].voice, vozLocal);
+  assert.equal(p.falas[0].rate, 1.5);
+  p.comando('configurar', undefined, { voz: '', velocidade: 2 });
+  p.falas[0].onend();
+  assert.equal(p.falas[1].voice, vozLocal);
+  assert.equal(p.falas[1].rate, 1.5);
+  assert.deepEqual(p.comando('estado').configuracao, { voz: 'voz-pt', velocidade: 1.5 });
+});
+
+for (const opcoes of [{ voz: '', velocidade: 0 }, { voz: '', velocidade: '2' }, { voz: '', velocidade: 10 }, { voz: null, velocidade: 1 }, { voz: 'ausente', velocidade: 1 }]) {
+  test(`rejeita opções inválidas sem alterar configuração: ${JSON.stringify(opcoes)}`, () => {
+    const p = carregar();
+    assert.ok(p.comando('configurar', undefined, opcoes).erro);
+    assert.deepEqual(p.comando('estado').configuracao, { voz: '', velocidade: 1 });
+  });
+}
+
+test('voz removida entre trechos interrompe e permite escolher alternativa', () => {
+  const vozes = [vozLocal];
+  const p = carregar({ vozes });
+  p.comando('configurar', undefined, { voz: 'voz-pt', velocidade: 1 });
+  p.comando('ouvir', 'Frase. '.repeat(100));
+  vozes.pop();
+  p.falas[0].onend();
+  assert.equal(p.comando('estado').estado, 'erro');
+  assert.match(p.comando('estado').erro, /voz selecionada/);
+  p.comando('configurar', undefined, { voz: '', velocidade: 1 });
+  p.comando('ouvir', 'Alternativa');
+  assert.equal(p.falas.length, 2);
+  assert.equal(p.falas[1].voice, undefined);
+});
+
+test('falha ao listar vozes mantém alternativa padrão', () => {
+  const p = carregar();
+  p.synth.getVoices = () => { throw new Error(); };
+  assert.deepEqual(p.comando('estado').vozes, []);
+  p.comando('ouvir', 'Texto');
+  assert.equal(p.falas.length, 1);
 });

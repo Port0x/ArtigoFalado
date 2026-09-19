@@ -1,6 +1,6 @@
 # Tarefas de evolução
 
-As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1–T3 implementadas; T4 e T5 continuam planejadas.
+As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1–T4 implementadas; T5 continua planejada.
 
 | Etapa | Issue |
 | --- | --- |
@@ -68,7 +68,7 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 - [x] Falta de suporte ou erro de síntese produz uma mensagem compreensível.
 - [x] Documentar o comportamento ao atualizar, navegar ou fechar a aba.
 
-**Validação:** sintaxe e 92 testes aprovados. No Chrome, estados de leitura, pausa, continuação, parada e recuperação após reabrir o popup conferidos. A qualidade audível e a reprodução integral de texto longo ainda precisam de conferência por escuta. T3 implementada localmente; publicação e workflow no GitHub pendentes.
+**Validação:** sintaxe e 92 testes aprovados. No Chrome, estados de leitura, pausa, continuação, parada e recuperação após reabrir o popup conferidos. A qualidade audível e a reprodução integral de texto longo ainda precisam de conferência por escuta. T3 publicada, com workflow aprovado e issue #3 fechada.
 
 ## T4 — Melhorar leitura de textos longos e seleção de voz
 
@@ -79,12 +79,14 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 **Escopo:** dividir o texto em trechos respeitando frases quando possível, mostrar progresso por trecho e permitir selecionar voz e velocidade entre as opções disponíveis.
 
 **Critérios de aceite:**
-- [ ] Os trechos são lidos na ordem, sem repetição ou omissão introduzida pela divisão.
-- [ ] Parar cancela também os trechos pendentes.
-- [ ] Pausar e continuar preservam a posição na fila.
-- [ ] Vozes carregadas de forma assíncrona aparecem na interface.
-- [ ] A ausência de uma voz em português tem alternativa explícita.
-- [ ] A leitura é verificada com artigo curto e artigo longo.
+- [x] Os trechos são lidos na ordem, sem repetição ou omissão introduzida pela divisão.
+- [x] Parar cancela também os trechos pendentes.
+- [x] Pausar e continuar preservam a posição na fila.
+- [x] Vozes carregadas de forma assíncrona aparecem na interface.
+- [x] A ausência de uma voz em português tem alternativa explícita.
+- [x] A leitura é verificada com artigo curto e artigo longo.
+
+**Validação:** 122 testes e sintaxe aprovados. No Chrome, leitura curta concluída (1/1) e artigo longo acompanhado até 8/79, com voz local Luciana a 2×, pausa, continuação, recuperação do progresso e cancelamento. Não houve escuta integral do artigo longo. T4 implementada localmente; publicação e workflow pendentes.
 
 ## T5 — Avaliar e implementar exportação de áudio
 

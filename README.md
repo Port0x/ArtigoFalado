@@ -4,7 +4,7 @@ Extensão para Google Chrome com o objetivo de transformar artigos da web em lei
 
 [Repositório](https://github.com/Port0x/ArtigoFalado) · [Issues](https://github.com/Port0x/ArtigoFalado/issues) · [Execuções dos testes](https://github.com/Port0x/ArtigoFalado/actions)
 
-**Etapa atual — T1, T2 e T3 implementadas sobre a versão 0.1.0:** a extensão captura título e texto bruto, exibe o artigo e oferece leitura em voz alta com controles. Melhorias para textos longos, escolha de voz e exportação de áudio continuam planejadas.
+**Etapa atual — T1 a T4 implementadas sobre a versão 0.1.0:** a extensão captura e exibe o artigo, lê em voz alta por trechos e oferece controles, progresso, seleção de voz e velocidade. Exportação de áudio continua planejada.
 
 ## O que já funciona
 
@@ -16,7 +16,9 @@ Extensão para Google Chrome com o objetivo de transformar artigos da web em lei
 - Remoção de espaços nas extremidades e aviso explícito para conteúdo vazio.
 - Mensagem de orientação quando não é possível acessar a página.
 - Síntese de voz iniciada por clique, com pausa, continuação e parada.
-- Recuperação do estado da leitura ao reabrir o popup na mesma aba.
+- Recuperação do estado, progresso e opções da leitura ao reabrir o popup na mesma aba.
+- Fila de trechos de até 240 unidades UTF-16, buscando finais de frases e espaços para dividir o texto.
+- Seleção de voz e velocidade entre 0,5× e 2× antes de iniciar a leitura.
 
 O botão **Ler página** captura o conteúdo. Após conferir o texto, clique em **Ouvir** para iniciar a voz; use **Pausar**, **Continuar** e **Parar** para controlar a reprodução.
 
@@ -59,7 +61,7 @@ Clique em Ler página
 
 O manifesto declara `activeTab` e um script de conteúdo com correspondência `<all_urls>`. Portanto, o script está configurado para ser carregado nas páginas compatíveis permitidas pelo navegador; a captura do título e do texto é solicitada pelo botão.
 
-A extensão não faz requisições próprias a servidores, não usa uma API de IA e não salva o artigo em armazenamento persistente. O texto da fala permanece em memória durante a reprodução. A síntese usa a voz escolhida pelo navegador/sistema para o idioma da página (ou `pt-BR` se ausente); algumas vozes podem depender de serviços do fornecedor. Não há garantia de funcionamento offline. O título e o texto não são registrados no console.
+A extensão não faz requisições próprias a servidores, não usa uma API de IA e não salva o artigo em armazenamento persistente. O texto da fala permanece em memória durante a reprodução. A síntese permite escolher uma voz ou usar a padrão do navegador para o idioma da página (ou `pt-BR` se ausente). As opções identificam vozes locais e remotas; vozes remotas podem depender de serviços do fornecedor. Não há garantia de funcionamento offline. O título e o texto não são registrados no console.
 
 A extração é simples: menus, anúncios e outros conteúdos podem aparecer no resultado, especialmente ao usar o corpo da página. Um `article` ou `main` existente, mas vazio, produz texto vazio; a busca por alternativas ocorre apenas quando o elemento não existe. Espaços internos e quebras de linha são preservados. Não há acesso especial a conteúdo em iframes ou shadow DOM.
 
@@ -117,11 +119,21 @@ Os testes incluem conteúdo literal semelhante a HTML, texto de 150 mil caracter
 
 A fala é controlada na página e continua ao fechar o popup. Ao reabrir na mesma aba, é possível pausar, continuar e parar sem capturar novamente. Atualizar, navegar para outro documento ou fechar a aba encerra a leitura; mudanças de endereço dentro do mesmo documento podem preservá-la. Não há retomada automática após recarregar a página. Recarregar a extensão durante uma fala exige também atualizar a página.
 
-Há uma leitura por aba, sem enfileirar cliques repetidos. Abas distintas têm estados independentes; esta etapa não coordena áudio entre abas. Os controles da Web Speech API podem também afetar síntese iniciada pelo próprio site no mesmo documento. O texto é enviado à síntese em uma única fala: divisão em trechos e melhorias para artigos extensos pertencem à T4. Não há geração de arquivo para download.
+Há uma leitura por aba, sem enfileirar cliques repetidos. Abas distintas têm estados independentes; esta etapa não coordena áudio entre abas. Os controles da Web Speech API podem também afetar síntese iniciada pelo próprio site no mesmo documento. Na T4, apenas um trecho é enviado à síntese por vez, e o próximo começa após o evento de término do anterior. Não há geração de arquivo para download.
 
-Validação: `sh scripts/check.sh` executa sintaxe dos quatro scripts e 92 testes. Os novos testes cobrem comandos, estados, erros síncronos e assíncronos, falta de suporte, mensagens atrasadas, cancelamento ao navegar e recuperação entre popups. No Chrome foram observados os estados de início, pausa, continuação, parada e recuperação após fechar o popup. A qualidade audível e a reprodução integral de artigos longos não foram verificadas por escuta; confira com os alto-falantes do seu computador.
+Validação da T3: sintaxe dos quatro scripts e 92 testes aprovados naquela etapa. Os novos testes cobrem comandos, estados, erros síncronos e assíncronos, falta de suporte, mensagens atrasadas, cancelamento ao navegar e recuperação entre popups. No Chrome foram observados os estados de início, pausa, continuação, parada e recuperação após fechar o popup. A qualidade audível e a reprodução integral de artigos longos não foram verificadas por escuta; confira com os alto-falantes do seu computador.
 
 Referência técnica: [Web Speech API — síntese de voz](https://webaudio.github.io/web-speech-api/#tts-section).
+
+### Textos longos, voz e velocidade (T4)
+
+Antes de Ouvir, escolha **Voz** e **Velocidade**. As opções ficam bloqueadas durante a leitura, inclusive em pausa; pare para alterá-las. As escolhas ficam na memória da página e são recuperadas ao reabrir o popup. A lista de vozes é consultada periodicamente e incorpora vozes carregadas depois; sem voz em português ou sem catálogo disponível, há aviso e a alternativa **Padrão do navegador**. Se a voz escolhida desaparecer, escolha outra antes de reiniciar.
+
+O progresso indica trechos concluídos, não tempo restante. Pausar preserva a posição; continuar retoma a fala atual ou o próximo trecho caso o anterior tenha terminado durante a pausa. Parar descarta toda a fila. A divisão preserva o texto, tenta respeitar finais de frases e espaços e evita separar pares de substitutos Unicode. Frases/palavras muito longas podem ser divididas e a pontuação nem sempre representa um fim de frase, como em abreviações. Os motores de voz podem introduzir pequenas pausas entre os trechos.
+
+A suíte atual tem 122 testes, incluindo reconstrução exata de texto com 150 mil caracteres, ordem dos trechos, eventos duplicados/atrasados, pausa entre trechos, erros no meio da fila, voz removida e recuperação de opções. No Chrome, uma página curta chegou a 1/1 e um artigo longo foi acompanhado até 8/79, com pausa, continuação, reabertura e cancelamento, usando Luciana local a 2×. Não foi feita escuta integral do artigo longo.
+
+Os riscos conhecidos e o procedimento após atualizações estão em [docs/VALIDACAO.md](docs/VALIDACAO.md).
 
 ## Problemas comuns
 
@@ -136,7 +148,7 @@ Referência técnica: [Web Speech API — síntese de voz](https://webaudio.gith
 1. Extração do texto bruto do artigo — implementada (T1).
 2. Exibição do texto no popup para conferência — implementada (T2).
 3. Leitura em voz alta com controles — implementada (T3).
-4. Melhorar a leitura de textos longos e a escolha da voz.
+4. Leitura por trechos, progresso, voz e velocidade — implementada (T4).
 5. Avaliar a geração de um arquivo de áudio para download.
 
-O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1–T3 estão implementadas; T4 e T5 continuam planejadas.
+O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1–T4 estão implementadas; T5 continua planejada.

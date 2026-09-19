@@ -9,11 +9,11 @@ const aguardar = () => new Promise((resolve) => setImmediate(resolve));
 function carregar({ query = async () => [{ id: 42 }], sendMessage = async () => ({ estado: 'parado', erro: '' }) } = {}) {
   const elementos = {};
   let atualizar, sair, limpo = false;
-  for (const id of ['ouvir', 'pausar', 'continuar', 'parar', 'estado-leitura', 'texto']) {
-    elementos[id] = { disabled: true, value: '', textContent: '', addEventListener(evento, fn) { this.clicar = fn; } };
+  for (const id of ['ouvir', 'pausar', 'continuar', 'parar', 'estado-leitura', 'texto', 'voz', 'velocidade', 'aviso-voz', 'progresso', 'texto-progresso']) {
+    elementos[id] = { disabled: true, value: '', textContent: '', addEventListener(evento, fn) { this.clicar = fn; }, replaceChildren(...filhos) { this.filhos = filhos; } };
   }
   runInNewContext(source, {
-    document: { getElementById(id) { assert.ok(elementos[id]); return elementos[id]; } },
+    document: { getElementById(id) { assert.ok(elementos[id]); return elementos[id]; }, createElement(tag) { assert.equal(tag, 'option'); return {}; } },
     chrome: { tabs: { query, sendMessage } },
     setInterval(fn) { atualizar = fn; return 77; },
     clearInterval(id) { assert.equal(id, 77); limpo = true; },
@@ -183,3 +183,68 @@ test('comando não é perdido durante consulta e resposta antiga não desfaz a p
   assert.equal(p.elementos['estado-leitura'].textContent, 'Leitura pausada.');
   assert.equal(chamadas, 3);
 });
+
+function estadoT4(alteracoes = {}) {
+  return { estado: 'parado', vozes: [], configuracao: { voz: '', velocidade: 1 }, progresso: { concluidos: 0, total: 0 }, ...alteracoes };
+}
+const vozPt = { id: 'pt', nome: '<b>Voz</b>', idioma: 'pt-BR', local: true };
+
+test('carrega vozes assíncronas com nomes literais e alternativa explícita', async () => {
+  let resposta = estadoT4();
+  const p = carregar({ sendMessage: async () => resposta });
+  await aguardar();
+  assert.match(p.elementos['aviso-voz'].textContent, /ainda não disponíveis/);
+  resposta = estadoT4({ vozes: [{ ...vozPt, idioma: 'en-US', local: false }] });
+  await p.atualizar();
+  assert.match(p.elementos['aviso-voz'].textContent, /Nenhuma voz em português/);
+  assert.equal(p.elementos.voz.filhos[1].textContent, '<b>Voz</b> (en-US) — serviço remoto');
+  resposta = estadoT4({ vozes: [vozPt] });
+  await p.atualizar();
+  assert.match(p.elementos['aviso-voz'].textContent, /próxima leitura/);
+});
+
+test('mudança envia valores selecionados e restaura configuração confirmada', async () => {
+  const mensagens = [];
+  const p = carregar({ sendMessage: async (id, m) => {
+    mensagens.push(m);
+    return estadoT4({ vozes: [vozPt], configuracao: m.comando === 'configurar'
+      ? { voz: m.voz, velocidade: m.velocidade } : { voz: '', velocidade: 1 } });
+  } });
+  await aguardar();
+  p.elementos.voz.value = 'pt';
+  p.elementos.velocidade.value = '1.5';
+  await p.elementos.voz.clicar();
+  assert.equal(mensagens[1].comando, 'configurar');
+  assert.equal(mensagens[1].voz, 'pt');
+  assert.equal(mensagens[1].velocidade, 1.5);
+  assert.equal(p.elementos.voz.value, 'pt');
+  assert.equal(p.elementos.velocidade.value, '1.5');
+});
+
+test('recupera progresso e opções ao reabrir durante pausa', async () => {
+  const p = carregar({ sendMessage: async () => estadoT4({ estado: 'pausado', vozes: [vozPt],
+    configuracao: { voz: 'pt', velocidade: 2 }, progresso: { concluidos: 3, total: 10 } }) });
+  await aguardar();
+  assert.equal(p.elementos.progresso.max, 10);
+  assert.equal(p.elementos.progresso.value, 3);
+  assert.match(p.elementos['texto-progresso'].textContent, /3 de 10.*trecho 4/);
+  assert.equal(p.elementos.voz.value, 'pt');
+  assert.equal(p.elementos.voz.disabled, true);
+  assert.equal(p.elementos.velocidade.value, '2');
+  assert.equal(p.elementos.velocidade.disabled, true);
+});
+
+test('voz removida permanece identificada para o usuário escolher alternativa', async () => {
+  const p = carregar({ sendMessage: async () => estadoT4({ configuracao: { voz: 'removida', velocidade: 1 } }) });
+  await aguardar();
+  assert.match(p.elementos.voz.filhos.at(-1).textContent, /Voz indisponível/);
+  assert.equal(p.elementos.voz.value, 'removida');
+});
+
+for (const campos of [{ vozes: {} }, { vozes: [null] }, { configuracao: null }, { configuracao: { voz: '', velocidade: 99 } }, { progresso: { concluidos: 2, total: 1 } }, { progresso: null }]) {
+  test(`rejeita metadados inválidos: ${JSON.stringify(campos)}`, async () => {
+    const p = carregar({ sendMessage: async () => estadoT4(campos) });
+    await aguardar();
+    assert.match(p.elementos['estado-leitura'].textContent, /Não foi possível acessar/);
+  });
+}
