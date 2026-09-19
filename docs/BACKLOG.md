@@ -94,7 +94,7 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 
 **Objetivo:** permitir baixar o artigo como arquivo de áudio.
 
-**Avaliação:** opções de serviço com backend e geração local registradas em [EXPORTACAO_AUDIO.md](EXPORTACAO_AUDIO.md). Escolha do mecanismo e implementação continuam pendentes.
+**Avaliação:** opções de serviço com backend e geração local registradas em [EXPORTACAO_AUDIO.md](EXPORTACAO_AUDIO.md). T5.1 implementa a base Node.js no mesmo repositório, com provedor simulado nos testes: divisão UTF-8, montagem WAV, progresso, cancelamento e limites. Veja [backend/README.md](../backend/README.md). Provedor real, API, integração com o popup e validação auditiva continuam pendentes; T5 não está concluída.
 
 **Escopo inicial:** avaliar um mecanismo de texto para fala que produza arquivo, definir formato, limites, custos e tratamento dos dados antes de implementar. Não assumir que a leitura do navegador fornece um MP3.
 

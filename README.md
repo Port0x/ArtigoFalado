@@ -149,6 +149,10 @@ Os riscos conhecidos e o procedimento após atualizações estão em [docs/VALID
 
 **O código mudou, mas o comportamento continua igual:** recarregue a extensão e a página, depois feche e abra novamente o popup.
 
+## Base de exportação em desenvolvimento (T5.1)
+
+O diretório [backend/](backend/README.md) inicia a exportação no mesmo projeto, com Node.js e provedor simulado apenas nos testes. Já há divisão por bytes, montagem WAV, progresso e cancelamento no módulo. Ainda não há serviço de voz real, servidor HTTP ou download no popup; a leitura da T4 continua funcionando como antes.
+
 ## Próximas etapas
 
 1. Extração do texto bruto do artigo — implementada (T1).
