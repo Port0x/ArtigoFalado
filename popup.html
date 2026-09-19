@@ -12,8 +12,16 @@
   <p id="status" role="status"></p>
   <label for="texto">Texto do artigo</label>
   <textarea id="texto" readonly aria-describedby="orientacao" placeholder="O texto capturado aparecerá aqui."></textarea>
-  <p id="orientacao">Confira o texto antes de continuar. A leitura em voz alta ainda não está disponível.</p>
+  <p id="orientacao">Confira o texto e clique em Ouvir. A leitura continua quando você fecha este popup.</p>
 
+  <div class="controles" role="group" aria-label="Controles de leitura">
+    <button id="ouvir" disabled>Ouvir</button>
+    <button id="pausar" disabled>Pausar</button>
+    <button id="continuar" disabled>Continuar</button>
+    <button id="parar" disabled>Parar</button>
+  </div>
+  <p id="estado-leitura" role="status">Consultando leitura…</p>
   <script src="popup.js"></script>
+  <script src="controles.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # Tarefas de evolução
 
-As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1 e T2 implementadas; T3–T5 continuam planejadas.
+As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/issues). Os identificadores T1–T5 são locais; os links abaixo apontam para as issues correspondentes. T1–T3 implementadas; T4 e T5 continuam planejadas.
 
 | Etapa | Issue |
 | --- | --- |
@@ -60,13 +60,15 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 **Escopo:** implementar comandos de ouvir, pausar, continuar e parar; manter o controle de reprodução fora do ciclo de vida do popup, inicialmente no script da página. Esta tarefa não gera arquivo de áudio.
 
 **Critérios de aceite:**
-- [ ] Um clique explícito inicia a leitura de um texto não vazio.
-- [ ] Pausar, continuar e parar têm os efeitos esperados.
-- [ ] Fechar o popup não encerra a leitura em andamento.
-- [ ] Reabrir o popup permite recuperar o estado da leitura na aba.
-- [ ] Cliques repetidos não sobrepõem leituras na mesma aba.
-- [ ] Falta de suporte ou erro de síntese produz uma mensagem compreensível.
-- [ ] Documentar o comportamento ao atualizar, navegar ou fechar a aba.
+- [x] Um clique explícito inicia a leitura de um texto não vazio.
+- [x] Pausar, continuar e parar têm os efeitos esperados.
+- [x] Fechar o popup não encerra a leitura em andamento.
+- [x] Reabrir o popup permite recuperar o estado da leitura na aba.
+- [x] Cliques repetidos não sobrepõem leituras na mesma aba.
+- [x] Falta de suporte ou erro de síntese produz uma mensagem compreensível.
+- [x] Documentar o comportamento ao atualizar, navegar ou fechar a aba.
+
+**Validação:** sintaxe e 92 testes aprovados. No Chrome, estados de leitura, pausa, continuação, parada e recuperação após reabrir o popup conferidos. A qualidade audível e a reprodução integral de texto longo ainda precisam de conferência por escuta. T3 implementada localmente; publicação e workflow no GitHub pendentes.
 
 ## T4 — Melhorar leitura de textos longos e seleção de voz
 

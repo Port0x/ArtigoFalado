@@ -29,3 +29,15 @@ test('popup oferece campo somente leitura com rótulo e estilos locais', () => {
   assert.match(popup, /href="popup.css"/);
   assert.ok(existsSync(path.join(root, 'popup.css')));
 });
+
+test('scripts de voz estão conectados ao manifesto e aos controles do popup', () => {
+  const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8'));
+  assert.ok(manifest.content_scripts[0].js.includes('leitura.js'));
+  const popup = readFileSync(path.join(root, 'popup.html'), 'utf8');
+  assert.match(popup, /src="controles\.js"/);
+  assert.ok(existsSync(path.join(root, 'controles.js')));
+  for (const id of ['ouvir', 'pausar', 'continuar', 'parar']) {
+    assert.match(popup, new RegExp(`<button id="${id}" disabled>`));
+  }
+  assert.match(popup, /id="estado-leitura" role="status"/);
+});

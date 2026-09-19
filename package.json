@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node --test tests/*.test.cjs",
     "test:watch": "node --test --watch tests/*.test.cjs",
-    "check": "node --check content.js && node --check popup.js && npm test",
+    "check": "node --check content.js && node --check popup.js && node --check leitura.js && node --check controles.js && npm test",
     "setup": "node scripts/setup.cjs"
   }
 }

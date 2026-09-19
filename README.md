@@ -4,7 +4,7 @@ Extensão para Google Chrome com o objetivo de transformar artigos da web em lei
 
 [Repositório](https://github.com/Port0x/ArtigoFalado) · [Issues](https://github.com/Port0x/ArtigoFalado/issues) · [Execuções dos testes](https://github.com/Port0x/ArtigoFalado/actions)
 
-**Etapa atual — T1 e T2 implementadas sobre a versão 0.1.0:** a extensão captura e exibe título e texto bruto da aba ativa. O texto aparece em um campo somente leitura com rolagem. A reprodução de áudio ainda está planejada.
+**Etapa atual — T1, T2 e T3 implementadas sobre a versão 0.1.0:** a extensão captura título e texto bruto, exibe o artigo e oferece leitura em voz alta com controles. Melhorias para textos longos, escolha de voz e exportação de áudio continuam planejadas.
 
 ## O que já funciona
 
@@ -15,8 +15,10 @@ Extensão para Google Chrome com o objetivo de transformar artigos da web em lei
 - Extração de `innerText` do primeiro `article`, depois `main` e, na ausência dos dois, `document.body`.
 - Remoção de espaços nas extremidades e aviso explícito para conteúdo vazio.
 - Mensagem de orientação quando não é possível acessar a página.
+- Síntese de voz iniciada por clique, com pausa, continuação e parada.
+- Recuperação do estado da leitura ao reabrir o popup na mesma aba.
 
-Apesar do nome do botão, esta etapa ainda não lê o artigo em voz alta.
+O botão **Ler página** captura o conteúdo. Após conferir o texto, clique em **Ouvir** para iniciar a voz; use **Pausar**, **Continuar** e **Parar** para controlar a reprodução.
 
 ## Instalação local
 
@@ -48,6 +50,8 @@ Clique em Ler página
 | `popup.css` | Controla o tamanho do popup, a rolagem e os indicadores de foco. |
 | `popup.js` | Consulta a aba, envia a mensagem e trata a resposta ou o erro. |
 | `content.js` | Recebe a solicitação na página e retorna título e texto bruto, ou um erro de extração. |
+| `leitura.js` | Mantém a fala e seu estado na página, usando a Web Speech API. |
+| `controles.js` | Envia comandos de voz e consulta o estado enquanto o popup está aberto. |
 | `AGENTS.md` | Orienta o Codex sobre desenvolvimento, validação e commits. |
 | `docs/BACKLOG.md` | Descreve as tarefas de evolução e seus critérios de aceite. |
 
@@ -55,13 +59,13 @@ Clique em Ler página
 
 O manifesto declara `activeTab` e um script de conteúdo com correspondência `<all_urls>`. Portanto, o script está configurado para ser carregado nas páginas compatíveis permitidas pelo navegador; a captura do título e do texto é solicitada pelo botão.
 
-O código atual não envia o conteúdo para servidores, não usa uma API de IA e não armazena o artigo. O título e o texto não são registrados no console.
+A extensão não faz requisições próprias a servidores, não usa uma API de IA e não salva o artigo em armazenamento persistente. O texto da fala permanece em memória durante a reprodução. A síntese usa a voz escolhida pelo navegador/sistema para o idioma da página (ou `pt-BR` se ausente); algumas vozes podem depender de serviços do fornecedor. Não há garantia de funcionamento offline. O título e o texto não são registrados no console.
 
 A extração é simples: menus, anúncios e outros conteúdos podem aparecer no resultado, especialmente ao usar o corpo da página. Um `article` ou `main` existente, mas vazio, produz texto vazio; a busca por alternativas ocorre apenas quando o elemento não existe. Espaços internos e quebras de linha são preservados. Não há acesso especial a conteúdo em iframes ou shadow DOM.
 
 ## Desenvolvimento e verificação
 
-Após alterar o código, recarregue a extensão em `chrome://extensions` e atualize a aba do site para carregar a nova versão de `content.js`.
+Após alterar o código, recarregue a extensão em `chrome://extensions` e atualize a aba do site para carregar as novas versões de `content.js` e `leitura.js`.
 
 Verificação manual:
 
@@ -105,15 +109,25 @@ No Chrome, recarregue a extensão e a página. Confira o título em um site comu
 
 ### Verificação da T2
 
-Use Tab para focar **Ler página**, Enter para capturar e Tab para acessar **Texto do artigo**. O campo permite selecionar, copiar e percorrer o texto, mas não editar. Textos longos têm rolagem interna. Ao capturar novamente, o conteúdo anterior é limpo e o botão fica desabilitado até a resposta. Fechar o popup descarta o resultado; reabra e capture novamente.
+Use Tab para focar **Ler página**, Enter para capturar e Tab para acessar **Texto do artigo**. O campo permite selecionar, copiar e percorrer o texto, mas não editar. Textos longos têm rolagem interna. Ao capturar novamente, o conteúdo anterior é limpo e o botão fica desabilitado até a resposta. Fechar o popup descarta o texto exibido, mas preserva a leitura na página. Ao reabrir, os controles recuperam o estado; para conferir o texto novamente, recapture o artigo. Uma nova captura não troca o texto da fala em andamento: pare a leitura e clique em Ouvir para iniciar o novo conteúdo.
 
 Os testes incluem conteúdo literal semelhante a HTML, texto de 150 mil caracteres, limpeza após erros e bloqueio de capturas simultâneas. No Chrome foram conferidos artigo longo, rolagem até o fim, navegação por teclado, campo somente leitura e erro em página restrita. Conteúdo vazio e respostas inválidas também são cobertos com mocks.
+
+### Leitura em voz alta (T3)
+
+A fala é controlada na página e continua ao fechar o popup. Ao reabrir na mesma aba, é possível pausar, continuar e parar sem capturar novamente. Atualizar, navegar para outro documento ou fechar a aba encerra a leitura; mudanças de endereço dentro do mesmo documento podem preservá-la. Não há retomada automática após recarregar a página. Recarregar a extensão durante uma fala exige também atualizar a página.
+
+Há uma leitura por aba, sem enfileirar cliques repetidos. Abas distintas têm estados independentes; esta etapa não coordena áudio entre abas. Os controles da Web Speech API podem também afetar síntese iniciada pelo próprio site no mesmo documento. O texto é enviado à síntese em uma única fala: divisão em trechos e melhorias para artigos extensos pertencem à T4. Não há geração de arquivo para download.
+
+Validação: `sh scripts/check.sh` executa sintaxe dos quatro scripts e 92 testes. Os novos testes cobrem comandos, estados, erros síncronos e assíncronos, falta de suporte, mensagens atrasadas, cancelamento ao navegar e recuperação entre popups. No Chrome foram observados os estados de início, pausa, continuação, parada e recuperação após fechar o popup. A qualidade audível e a reprodução integral de artigos longos não foram verificadas por escuta; confira com os alto-falantes do seu computador.
+
+Referência técnica: [Web Speech API — síntese de voz](https://webaudio.github.io/web-speech-api/#tts-section).
 
 ## Problemas comuns
 
 **Não foi possível acessar esta página:** atualize a página depois de instalar ou recarregar a extensão. Páginas internas como `chrome://extensions` e outras páginas protegidas pelo navegador não aceitam o script normalmente. Teste em um site HTTP/HTTPS comum.
 
-**Não sai áudio:** isso é esperado nesta versão. A funcionalidade atual captura título e texto, mas ainda não reproduz áudio.
+**Não sai áudio:** capture um artigo não vazio e clique em **Ouvir**. Confira o volume e as vozes do sistema. Se houver aviso de bloqueio, clique na página e tente novamente. Páginas restritas não aceitam os scripts da extensão.
 
 **O código mudou, mas o comportamento continua igual:** recarregue a extensão e a página, depois feche e abra novamente o popup.
 
@@ -121,8 +135,8 @@ Os testes incluem conteúdo literal semelhante a HTML, texto de 150 mil caracter
 
 1. Extração do texto bruto do artigo — implementada (T1).
 2. Exibição do texto no popup para conferência — implementada (T2).
-3. Implementar leitura em voz alta com controles.
+3. Leitura em voz alta com controles — implementada (T3).
 4. Melhorar a leitura de textos longos e a escolha da voz.
 5. Avaliar a geração de um arquivo de áudio para download.
 
-O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1 e T2 estão implementadas; T3–T5 continuam planejadas.
+O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1–T3 estão implementadas; T4 e T5 continuam planejadas.
