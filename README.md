@@ -149,6 +149,6 @@ Os riscos conhecidos e o procedimento após atualizações estão em [docs/VALID
 2. Exibição do texto no popup para conferência — implementada (T2).
 3. Leitura em voz alta com controles — implementada (T3).
 4. Leitura por trechos, progresso, voz e velocidade — implementada (T4).
-5. Avaliar a geração de um arquivo de áudio para download.
+5. Escolher o mecanismo de exportação após a [avaliação da T5](docs/EXPORTACAO_AUDIO.md); geração de arquivo ainda não implementada.
 
 O escopo e os critérios de conclusão estão em [docs/BACKLOG.md](docs/BACKLOG.md). T1–T4 estão implementadas; T5 continua planejada.

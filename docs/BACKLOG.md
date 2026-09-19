@@ -86,13 +86,15 @@ As tarefas foram publicadas no [GitHub](https://github.com/Port0x/ArtigoFalado/i
 - [x] A ausência de uma voz em português tem alternativa explícita.
 - [x] A leitura é verificada com artigo curto e artigo longo.
 
-**Validação:** 122 testes e sintaxe aprovados. No Chrome, leitura curta concluída (1/1) e artigo longo acompanhado até 8/79, com voz local Luciana a 2×, pausa, continuação, recuperação do progresso e cancelamento. Não houve escuta integral do artigo longo. T4 implementada localmente; publicação e workflow pendentes.
+**Validação:** 122 testes e sintaxe aprovados. No Chrome, leitura curta concluída (1/1) e artigo longo acompanhado até 8/79, com voz local Luciana a 2×, pausa, continuação, recuperação do progresso e cancelamento. Não houve escuta integral do artigo longo. T4 publicada no commit `2223c16`, com [workflow aprovado](https://github.com/Port0x/ArtigoFalado/actions/runs/35439494554) e issue #4 fechada.
 
 ## T5 — Avaliar e implementar exportação de áudio
 
 **Depende de:** T1 e T2. Pode ser planejada após a validação da leitura no navegador.
 
 **Objetivo:** permitir baixar o artigo como arquivo de áudio.
+
+**Avaliação:** opções de serviço com backend e geração local registradas em [EXPORTACAO_AUDIO.md](EXPORTACAO_AUDIO.md). Escolha do mecanismo e implementação continuam pendentes.
 
 **Escopo inicial:** avaliar um mecanismo de texto para fala que produza arquivo, definir formato, limites, custos e tratamento dos dados antes de implementar. Não assumir que a leitura do navegador fornece um MP3.
 
